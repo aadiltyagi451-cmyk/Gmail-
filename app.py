@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+BOT_TOKEN = "8376225941:AAHvhTSl5OEMCO1hLvyFau3XI2O3Xn4k6c0"
 
 # ---------------- DATABASE ----------------
 db = sqlite3.connect("data.db", check_same_thread=False)
