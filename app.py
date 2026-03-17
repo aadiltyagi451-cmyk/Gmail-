@@ -44,18 +44,12 @@ def create_driver():
     return driver
 
 driver = create_driver()
-
-# ---------------- MAIN PROCESS ----------------
+# ---------------- MAIN ----------------
 def record_process(email):
     images = []
 
     driver.get("https://accounts.google.com/")
     time.sleep(random.randint(3, 5))
-
-    # 📸 Screenshot 1
-    img1 = f"{email}_1.png"
-    driver.save_screenshot(img1)
-    images.append(img1)
 
     # Enter email (human typing)
     email_input = driver.find_element(By.ID, "identifierId")
@@ -66,25 +60,32 @@ def record_process(email):
         time.sleep(0.05)
 
     time.sleep(random.randint(1, 2))
+
+    # 📸 Screenshot BEFORE ENTER
+    img1 = f"{email}_{int(time.time())}_before.png"
+    driver.save_screenshot(img1)
+    images.append(img1)
+
+    # ENTER press
     email_input.send_keys(Keys.ENTER)
 
     time.sleep(random.randint(4, 6))
 
-    # 📸 Screenshot 2
-    img2 = f"{email}_2.png"
+    # 📸 Screenshot AFTER ENTER
+    img2 = f"{email}_{int(time.time())}_after.png"
     driver.save_screenshot(img2)
     images.append(img2)
 
     page = driver.page_source.lower()
 
-    # 🔥 SMART DETECTION (improved)
+    # 🔥 SMART DETECTION
     if "couldn't find your google account" in page or "couldn’t find your google account" in page:
         result = "❌ Not Created"
 
     elif "enter your password" in page or "welcome" in page or "password" in page:
         result = "✅ Created"
 
-    elif "try again later" in page or "unusual traffic" in page:
+    elif "try again later" in page or "unusual traffic" in page or "not be secure" in page:
         result = "⚠️ BLOCKED"
 
     else:
@@ -97,31 +98,6 @@ def record_process(email):
     time.sleep(random.randint(5, 8))
 
     return result, images
-
-# ---------------- BOT ----------------
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    email = update.message.text.strip()
-
-    if "@" not in email:
-        await update.message.reply_text("❌ Invalid email")
-        return
-
-    await update.message.reply_text("⏳ Checking...")
-
-    try:
-        result, images = record_process(email)
-
-        # Send screenshots
-        for img in images:
-            with open(img, "rb") as photo:
-                await update.message.reply_photo(photo)
-            os.remove(img)
-
-        await update.message.reply_text(f"{email}\n{result}")
-
-    except Exception as e:
-        await update.message.reply_text("⚠️ Error / Blocked")
-
 # ---------------- STATS ----------------
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cur.execute("SELECT status, COUNT(*) FROM logs GROUP BY status")
